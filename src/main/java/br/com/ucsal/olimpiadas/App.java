@@ -39,6 +39,7 @@ public class App {
 			case "5" -> listarTentativas();
 			case "0" -> {
 				System.out.println("tchau");
+				System.out.printf("até mais");
 				return;
 			}
 			default -> System.out.println("opção inválida");
