@@ -72,34 +72,35 @@ public class App {
 
         System.out.println("Titulo: ");
         var titulo = in.nextLine();
-        provaservice.cadastrar(titulo); 
+        provaservice.cadastrar(titulo);
     }
-	
-static QuestaoService questaoService = new QuestaoService(questoes, proximaQuestaoId);
+
+    static QuestaoService questaoService = new QuestaoService(questoes, proximaQuestaoId);
 
     static void cadastrarQuestao() {
 
-    var provaId = escolherProva();
-    if (provaId == null) {
-        return;
+        var provaId = escolherProva();
+        if (provaId == null) {
+            return;
+        }
+
+        System.out.println("Enunciado:");
+        var enunciado = in.nextLine();
+
+        var alternativas = new String[5];
+
+        for (int i = 0; i < 5; i++) {
+            char letra = (char) ('A' + i);
+            System.out.print("Alternativa " + letra + ": ");
+            alternativas[i] = letra + ") " + in.nextLine();
+        }
+
+        System.out.print("Alternativa correta (A–E): ");
+        char correta = Questao.normalizar(in.nextLine().trim().charAt(0));
+
+        questaoService.cadastrarQuestao(provaId, enunciado, alternativas, correta);
     }
-
-    System.out.println("Enunciado:");
-    var enunciado = in.nextLine();
-
-    var alternativas = new String[5];
-
-    for (int i = 0; i < 5; i++) {
-        char letra = (char) ('A' + i);
-        System.out.print("Alternativa " + letra + ": ");
-        alternativas[i] = letra + ") " + in.nextLine();
-    }
-
-    System.out.print("Alternativa correta (A–E): ");
-    char correta = Questao.normalizar(in.nextLine().trim().charAt(0));
-
-    questaoService.cadastrarQuestao(provaId, enunciado, alternativas, correta);
-}
+    static ITentativaService tentativaService = new TentativaService(tentativas, proximaTentativaId);
 
     static void aplicarProva() {
         if (participantes.isEmpty()) {
@@ -121,70 +122,38 @@ static QuestaoService questaoService = new QuestaoService(questoes, proximaQuest
             return;
         }
 
-        var questoesDaProva = questoes.stream().filter(q -> q.getProvaId() == provaId).toList();
+        var questoesDaProva = questoes.stream()
+                .filter(q -> q.getProvaId() == provaId)
+                .toList();
 
         if (questoesDaProva.isEmpty()) {
-            System.out.println("esta prova não possui questões cadastradas");
+            System.out.println("esta prova não possui questões");
             return;
         }
 
-        var tentativa = new Tentativa();
-        tentativa.setId(proximaTentativaId++);
-        tentativa.setParticipanteId(participanteId);
-        tentativa.setProvaId(provaId);
+        var tentativa = tentativaService.iniciar(participanteId, provaId);
 
-        System.out.println("\n--- Início da Prova ---");
+        System.out.println("\nTipo de prova:");
+        System.out.println("1) Simples");
+        System.out.println("2) Cronometrada (30s por questão)");
+        System.out.print("> ");
 
-        for (var q : questoesDaProva) {
-            System.out.println("\nQuestão #" + q.getId());
-            System.out.println(q.getEnunciado());
-
-            System.out.println("Posição inicial:");
-            imprimirTabuleiroFen(q.getFenInicial());
-
-            for (var alt : q.getAlternativas()) {
-                System.out.println(alt);
-            }
-
-            System.out.print("Sua resposta (A–E): ");
-            char marcada;
-            try {
-                marcada = Questao.normalizar(in.nextLine().trim().charAt(0));
-            } catch (Exception e) {
-                System.out.println("resposta inválida (marcando como errada)");
-                marcada = 'X';
-            }
-
-            var r = new Resposta();
-            r.setQuestaoId(q.getId());
-            r.setAlternativaMarcada(marcada);
-            r.setCorreta(q.isRespostaCorreta(marcada));
-
-            tentativa.getRespostas().add(r);
-        }
-
-        tentativas.add(tentativa);
-
-        int nota = calcularNota(tentativa);
-        System.out.println("\n--- Fim da Prova ---");
-        System.out.println("Nota (acertos): " + nota + " / " + tentativa.getRespostas().size());
-    }
-
-    public static int calcularNota(Tentativa tentativa) {
-        int acertos = 0;
-        for (var r : tentativa.getRespostas()) {
-            if (r.isCorreta()) {
-                acertos++;
-            }
-        }
-        return acertos;
+        IProvaStrategy strategy = switch (in.nextLine().trim()) {
+            case "2" ->
+                new ProvaCronometrada(in, tentativaService, 30);
+            default ->
+                new ProvaSimples(in, tentativaService);
+        };
+        strategy.executar(tentativa, questoesDaProva);
     }
 
     static void listarTentativas() {
         System.out.println("\n--- Tentativas ---");
         for (var t : tentativas) {
-            System.out.printf("#%d | participante=%d | prova=%d | nota=%d/%d%n", t.getId(), t.getParticipanteId(),
-                    t.getProvaId(), calcularNota(t), t.getRespostas().size());
+            System.out.printf("#%d | participante=%d | prova=%d | nota=%d/%d%n",
+                    t.getId(), t.getParticipanteId(), t.getProvaId(),
+                    tentativaService.calcularNota(t), t.getRespostas().size());
+
         }
     }
 
