@@ -1,6 +1,6 @@
 # Olimpíada de Questões — Refatoração SOLID
 
-Atividade prática da disciplina de **Programação Orientada a Objetos (POO)**, com o objetivo de refatorar um sistema aplicando os cinco princípios do SOLID, sem alterar o comportamento funcional original.
+Atividade prática da disciplina de **Programação Orientada a Objetos (POO)**, com o objetivo de refatorar o sistema aplicando os cinco princípios do SOLID, sem alterar o comportamento funcional original.
 
 ---
 
