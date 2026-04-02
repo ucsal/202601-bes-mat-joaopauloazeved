@@ -4,19 +4,6 @@ Atividade prática da disciplina de **Programação Orientada a Objetos (POO)**,
 
 ---
 
-## Como executar
-
-**Requisitos:** Java 17 ou superior e Maven instalados.
-
-```bash
-git clone <url-do-repositorio>
-cd <nome-do-repositorio>
-mvn compile
-mvn exec:java -Dexec.mainClass="br.com.ucsal.olimpiadas.App"
-```
-
----
-
 ## Funcionalidades do sistema
 
 - Cadastrar participantes
