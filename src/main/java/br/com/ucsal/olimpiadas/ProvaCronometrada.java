@@ -6,12 +6,14 @@ import java.util.Scanner;
 public class ProvaCronometrada implements IProvaStrategy {
 
     private final Scanner in;
-    private final ITentativaService tentativaService;
+    private final IRegistradorResposta registrador;
+    private final ICalculadoraNota calculadora;
     private final int segundosPorQuestao;
 
-    public ProvaCronometrada(Scanner in, ITentativaService tentativaService, int segundosPorQuestao) {
+    public ProvaCronometrada(Scanner in, IRegistradorResposta registrador, ICalculadoraNota calculadora, int segundosPorQuestao) {
         this.in = in;
-        this.tentativaService = tentativaService;
+        this.registrador = registrador;
+        this.calculadora = calculadora;
         this.segundosPorQuestao = segundosPorQuestao;
     }
 
@@ -44,10 +46,10 @@ public class ProvaCronometrada implements IProvaStrategy {
                 marcada = 'X';
             }
 
-            tentativaService.registrarResposta(tentativa, q.getId(), marcada, q.isRespostaCorreta(marcada));
+            registrador.registrarResposta(tentativa, q.getId(), marcada, q.isRespostaCorreta(marcada));
         }
 
-        int nota = tentativaService.calcularNota(tentativa);
+        int nota = calculadora.calcularNota(tentativa);
         System.out.println("\n--- Fim da Prova ---");
         System.out.println("Nota (acertos): " + nota + " / " + tentativa.getRespostas().size());
     }

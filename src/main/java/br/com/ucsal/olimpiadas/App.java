@@ -139,10 +139,8 @@ public class App {
         System.out.print("> ");
 
         IProvaStrategy strategy = switch (in.nextLine().trim()) {
-            case "2" ->
-                new ProvaCronometrada(in, tentativaService, 30);
-            default ->
-                new ProvaSimples(in, tentativaService);
+            case "2" -> new ProvaCronometrada(in, tentativaService, tentativaService, 30);
+            default -> new ProvaSimples(in, tentativaService, tentativaService);
         };
         strategy.executar(tentativa, questoesDaProva);
     }

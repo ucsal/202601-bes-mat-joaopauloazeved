@@ -6,11 +6,13 @@ import java.util.Scanner;
 public class ProvaSimples implements IProvaStrategy {
 
     private final Scanner in;
-    private final ITentativaService tentativaService;
+    private final IRegistradorResposta registrador;
+    private final ICalculadoraNota calculadora;
 
-    public ProvaSimples(Scanner in, ITentativaService tentativaService) {
+    public ProvaSimples(Scanner in, IRegistradorResposta registrador, ICalculadoraNota calculadora) {
         this.in = in;
-        this.tentativaService = tentativaService;
+        this.registrador = registrador;
+        this.calculadora = calculadora;
     }
 
     @Override
@@ -34,10 +36,10 @@ public class ProvaSimples implements IProvaStrategy {
                 marcada = 'X';
             }
 
-            tentativaService.registrarResposta(tentativa, q.getId(), marcada, q.isRespostaCorreta(marcada));
+            registrador.registrarResposta(tentativa, q.getId(), marcada, q.isRespostaCorreta(marcada));
         }
 
-        int nota = tentativaService.calcularNota(tentativa);
+        int nota = calculadora.calcularNota(tentativa);
         System.out.println("\n--- Fim da Prova ---");
         System.out.println("Nota (acertos): " + nota + " / " + tentativa.getRespostas().size());
     }
